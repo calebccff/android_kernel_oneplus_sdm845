@@ -143,7 +143,7 @@ static int32_t cam_sensor_i2c_pkt_parse(struct cam_sensor_ctrl_t *s_ctrl,
 	}
 
 	i2c_data = &(s_ctrl->i2c_data);
-	CAM_DBG(CAM_SENSOR, "Header OpCode: %d", csl_packet->header.op_code);
+	CAM_INFO(CAM_SENSOR, "CAS: Header OpCode: %d", csl_packet->header.op_code);
 	switch (csl_packet->header.op_code & 0xFFFFFF) {
 	case CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG: {
 		i2c_reg_settings = &i2c_data->init_settings;
@@ -189,7 +189,7 @@ static int32_t cam_sensor_i2c_pkt_parse(struct cam_sensor_ctrl_t *s_ctrl,
 		i2c_reg_settings =
 			&i2c_data->per_frame[csl_packet->header.request_id %
 				MAX_PER_FRAME_ARRAY];
-		CAM_DBG(CAM_SENSOR, "Received Packet: %lld req: %lld",
+		CAM_INFO(CAM_SENSOR, "CAS: Received Packet: %lld req: %lld",
 			csl_packet->header.request_id % MAX_PER_FRAME_ARRAY,
 			csl_packet->header.request_id);
 		if (i2c_reg_settings->is_settings_valid == 1) {

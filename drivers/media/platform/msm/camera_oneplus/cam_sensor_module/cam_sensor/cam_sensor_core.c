@@ -146,7 +146,7 @@ static void cam_sensor_update_req_mgr(
 
 	add_req.link_hdl = s_ctrl->bridge_intf.link_hdl;
 	add_req.req_id = csl_packet->header.request_id;
-	CAM_DBG(CAM_SENSOR, " Rxed Req Id: %lld",
+	CAM_INFO(CAM_SENSOR, "CAS: Rxed Req Id: %lld",
 		csl_packet->header.request_id);
 	add_req.dev_hdl = s_ctrl->bridge_intf.device_hdl;
 	add_req.skip_before_applying = 0;
@@ -154,7 +154,7 @@ static void cam_sensor_update_req_mgr(
 		s_ctrl->bridge_intf.crm_cb->add_req)
 		s_ctrl->bridge_intf.crm_cb->add_req(&add_req);
 
-	CAM_DBG(CAM_SENSOR, " add req to req mgr: %lld",
+	CAM_INFO(CAM_SENSOR, "CAS: add req to req mgr: %lld",
 			add_req.req_id);
 }
 
@@ -266,7 +266,7 @@ static int32_t cam_sensor_i2c_pkt_parse(struct cam_sensor_ctrl_t *s_ctrl,
 	}
 
 	i2c_data = &(s_ctrl->i2c_data);
-	CAM_DBG(CAM_SENSOR, "Header OpCode: %d", csl_packet->header.op_code);
+	CAM_INFO(CAM_SENSOR, "CAS: Header OpCode: %d", csl_packet->header.op_code);
 	switch (csl_packet->header.op_code & 0xFFFFFF) {
 	case CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG: {
 		i2c_reg_settings = &i2c_data->init_settings;
@@ -313,7 +313,7 @@ static int32_t cam_sensor_i2c_pkt_parse(struct cam_sensor_ctrl_t *s_ctrl,
 			&i2c_data->
 			per_frame[csl_packet->header.request_id %
 			MAX_PER_FRAME_ARRAY];
-		CAM_DBG(CAM_SENSOR, "Received Packet: %lld req: %lld",
+		CAM_INFO(CAM_SENSOR, "CAS: Received Packet: %lld req: %lld",
 			csl_packet->header.request_id % MAX_PER_FRAME_ARRAY,
 			csl_packet->header.request_id);
 		if (i2c_reg_settings->is_settings_valid == 1) {
@@ -767,6 +767,29 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 	return rc;
 }
 
+static inline char* op_code_name(uint32_t op_code) {
+	switch (op_code) {
+	case CAM_SENSOR_PROBE_CMD:
+		return "CAM_SENSOR_PROBE_CMD";
+	case CAM_ACQUIRE_DEV:
+		return "CAM_ACQUIRE_DEV";
+	case CAM_RELEASE_DEV:
+		return "CAM_RELEASE_DEV";
+	case CAM_QUERY_CAP:
+		return "CAM_QUERY_CAP";
+	case CAM_START_DEV:
+		return "CAM_START_DEV";
+	case CAM_STOP_DEV:
+		return "CAM_STOP_DEV";
+	case CAM_CONFIG_DEV:
+		return "CAM_CONFIG_DEV";
+	case CAM_GET_FUSE_ID:
+		return "CAM_GET_FUSE_ID";
+	default:
+		return "UNKNOWN";
+	}
+}
+
 int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 	void *arg)
 {
@@ -778,6 +801,9 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 		&s_ctrl->sensordata->power_info;
 	uint32_t count = 0, i;
 	enum COMPONENT_TYPE CameraID;
+
+	CAM_INFO(CAM_SENSOR, "CAS: cam_control { op_code = 0x%x (%s), size = 0x%x, handle_type = 0x%x, reserved = 0x%x, handle = 0x%x }",
+		cmd->op_code, op_code_name(cmd->op_code), cmd->size, cmd->handle_type, cmd->reserved);
 
 	if (!s_ctrl || !arg) {
 		CAM_ERR(CAM_SENSOR, "s_ctrl is NULL");

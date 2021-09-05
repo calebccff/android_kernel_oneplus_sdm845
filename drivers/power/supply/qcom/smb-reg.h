@@ -863,7 +863,7 @@ enum {
 #define ICL_IMIN_BIT				BIT(2)
 #define AICL_FAIL_BIT				BIT(1)
 #define AICL_DONE_BIT				BIT(0)
-
+ 
 #define POWER_PATH_STATUS_REG			(MISC_BASE + 0x0B)
 #define INPUT_SS_DONE_BIT			BIT(7)
 #define USBIN_SUSPEND_STS_BIT			BIT(6)

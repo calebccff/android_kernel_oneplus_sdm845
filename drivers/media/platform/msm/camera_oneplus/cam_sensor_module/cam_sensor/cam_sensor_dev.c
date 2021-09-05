@@ -33,6 +33,19 @@ struct cam_sensor_settings sensor_settings = {
 #include "CAM_SENSOR_SETTINGS.h"
 };
 
+static inline char* cmd_to_name(unsigned int cmd) {
+	switch (cmd) {
+		case VIDIOC_CAM_CONTROL:
+			return "VIDIOC_CAM_CONTROL";
+		case VIDIOC_CAM_FTM_POWNER_DOWN:
+			return "VIDIOC_CAM_FTM_POWNER_DOWN";
+		case VIDIOC_CAM_FTM_POWNER_UP:
+			return "VIDIOC_CAM_FTM_POWNER_UP";
+		default:
+			return "UNKNOWN";
+	}
+}
+
 static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 	unsigned int cmd, void *arg)
 {
@@ -40,6 +53,8 @@ static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 	struct cam_sensor_ctrl_t *s_ctrl =
 		v4l2_get_subdevdata(sd);
 	struct cam_sensor_i2c_reg_setting sensor_setting;
+
+	CAM_INFO(CAM_SENSOR, "CAS: cmd = 0x%x, (%s)", cmd, cmd_to_name(cmd));
 
 	switch (cmd) {
 	case VIDIOC_CAM_CONTROL:

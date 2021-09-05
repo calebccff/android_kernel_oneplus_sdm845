@@ -304,7 +304,7 @@ int cam_sensor_i2c_command_parser(struct i2c_settings_array *i2c_reg_settings,
 		 * be spread across multiple cmd buffers
 		 */
 
-		CAM_DBG(CAM_SENSOR, "Total cmd Buf in Bytes: %d",
+		CAM_INFO(CAM_SENSOR, "CAS: Total cmd Buf in Bytes: %d",
 			cmd_desc[i].length);
 
 		if (!cmd_desc[i].length)

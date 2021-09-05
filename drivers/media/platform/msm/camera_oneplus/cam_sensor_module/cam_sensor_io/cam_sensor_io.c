@@ -71,26 +71,57 @@ int32_t camera_io_dev_read_seq(struct camera_io_master *io_master_info,
 	uint32_t addr, uint8_t *data,
 	enum camera_sensor_i2c_type addr_type, int32_t num_bytes)
 {
+	size_t i = 0, totallen = 0;
+	char* reg_info_string;
+	int ret;
+
 	if (io_master_info->master_type == CCI_MASTER) {
-		return cam_camera_cci_i2c_read_seq(io_master_info->cci_client,
+		ret = cam_camera_cci_i2c_read_seq(io_master_info->cci_client,
 			addr, data, addr_type, num_bytes);
 	} else if (io_master_info->master_type == I2C_MASTER) {
-		return cam_qup_i2c_read_seq(io_master_info->client,
+		ret = cam_qup_i2c_read_seq(io_master_info->client,
 			addr, data, addr_type, num_bytes);
 	} else if (io_master_info->master_type == SPI_MASTER) {
-		return cam_spi_read_seq(io_master_info,
+		ret = cam_spi_read_seq(io_master_info,
 			addr, data, addr_type, num_bytes);
 	} else {
 		CAM_ERR(CAM_SENSOR, "Invalid Comm. Master:%d",
 			io_master_info->master_type);
 		return -EINVAL;
 	}
-	return 0;
+
+	#define CHUNK_SIZE 32
+	#define SZ (16 * CHUNK_SIZE + 5 + 4)
+	reg_info_string = kmalloc(SZ, 0);
+	memset(reg_info_string, ' ', SZ - 1);
+	pr_info("CAS: camera_io_dev_read_seq() reg_map[%d] : START { ", num_bytes);
+	pr_info("CAS: camera_io_dev_read_seq() addr = 0x%x", addr);
+	for (i = 0; i < num_bytes; i++)
+	{
+		totallen += sprintf(reg_info_string + totallen , "addr = 0x%x, val = 0x%x: ", addr + i, data[i]);
+		if (i % 16 == 0) {
+			pr_info("CAS: reg_map[%d] : %s ", num_bytes, reg_info_string);
+			memset(reg_info_string, ' ', SZ - 1);
+			totallen = 0;
+		}
+	}
+
+	if (i % 16 > 0) {
+		sprintf(reg_info_string + totallen , "\0");
+		pr_info("CAS: reg_map[%d] : %s ", num_bytes, reg_info_string);
+	}
+
+	pr_info("CAS: reg_map[%d] : END } ", num_bytes);
+
+	return ret;
 }
 
 int32_t camera_io_dev_write(struct camera_io_master *io_master_info,
 	struct cam_sensor_i2c_reg_setting *write_setting)
 {
+	size_t i = 0, totallen = 0;
+	char* reg_info_string;
+
 	if (!write_setting || !io_master_info) {
 		CAM_ERR(CAM_SENSOR,
 			"Input parameters not valid ws: %pK ioinfo: %pK",
@@ -102,6 +133,28 @@ int32_t camera_io_dev_write(struct camera_io_master *io_master_info,
 		CAM_ERR(CAM_SENSOR, "Invalid Register Settings");
 		return -EINVAL;
 	}
+	
+	#define CHUNK_SIZE 32
+	#define SZ (16 * CHUNK_SIZE + 5 + 4)
+	reg_info_string = kmalloc(SZ, 0);
+	memset(reg_info_string, ' ', SZ - 1);
+	pr_info("CAS: camera_io_dev_write() reg_map[%d] : START { ", write_setting->size);
+	for (i = 0; i < write_setting->size; i++)
+	{
+		totallen += sprintf(reg_info_string + totallen , "addr = 0x%x, val = 0x%x: ", write_setting->reg_setting[i].reg_addr, write_setting->reg_setting[i].reg_data);
+		if (i % 16 == 0) {
+			pr_info("CAS: reg_map[%d] : %s ", write_setting->size, reg_info_string);
+			memset(reg_info_string, ' ', SZ - 1);
+			totallen = 0;
+		}
+	}
+
+	if (i % 16 > 0) {
+		sprintf(reg_info_string + totallen , "\0");
+		pr_info("CAS: reg_map[%d] : %s ", write_setting->size, reg_info_string);
+	}
+
+	pr_info("CAS: reg_map[%d] : END } ", write_setting->size);
 
 	if (io_master_info->master_type == CCI_MASTER) {
 		return cam_cci_i2c_write_table(io_master_info,
@@ -117,12 +170,17 @@ int32_t camera_io_dev_write(struct camera_io_master *io_master_info,
 			io_master_info->master_type);
 		return -EINVAL;
 	}
+
+	kfree(reg_info_string);
 }
 
 int32_t camera_io_dev_write_continuous(struct camera_io_master *io_master_info,
 	struct cam_sensor_i2c_reg_setting *write_setting,
 	uint8_t cam_sensor_i2c_write_flag)
 {
+	size_t i = 0, totallen = 0;
+	char* reg_info_string;
+
 	if (!write_setting || !io_master_info) {
 		CAM_ERR(CAM_SENSOR,
 			"Input parameters not valid ws: %pK ioinfo: %pK",
@@ -134,6 +192,28 @@ int32_t camera_io_dev_write_continuous(struct camera_io_master *io_master_info,
 		CAM_ERR(CAM_SENSOR, "Invalid Register Settings");
 		return -EINVAL;
 	}
+
+	#define CHUNK_SIZE 32
+	#define SZ (16 * CHUNK_SIZE + 5 + 4)
+	reg_info_string = kmalloc(SZ, 0);
+	memset(reg_info_string, ' ', SZ - 1);
+	pr_info("CAS: camera_io_dev_write_continuous() reg_map[%d] : START { ", write_setting->size);
+	for (i = 0; i < write_setting->size; i++)
+	{
+		totallen += sprintf(reg_info_string + totallen , "addr = 0x%x, val = 0x%x: ", write_setting->reg_setting[i].reg_addr, write_setting->reg_setting[i].reg_data);
+		if (i % 16 == 0) {
+			pr_info("CAS: reg_map[%d] : %s ", write_setting->size, reg_info_string);
+			memset(reg_info_string, ' ', SZ - 1);
+			totallen = 0;
+		}
+	}
+
+	if (i % 16 > 0) {
+		sprintf(reg_info_string + totallen , "\0");
+		pr_info("CAS: reg_map[%d] : %s ", write_setting->size, reg_info_string);
+	}
+
+	pr_info("CAS: reg_map[%d] : END } ", write_setting->size);
 
 	if (io_master_info->master_type == CCI_MASTER) {
 		return cam_cci_i2c_write_continuous_table(io_master_info,
