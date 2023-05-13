@@ -1477,7 +1477,8 @@ static int smb2_batt_set_prop(struct power_supply *psy,
 		if (!val->intval) {
 			chg->dash_on = get_prop_fast_chg_started(chg);
 			if (chg->dash_on) {
-				switch_mode_to_normal();
+				pr_info("CA:: POWER_SUPPLY_PROP_CHARGING_ENABLED=0 would disable fastchg");
+				//switch_mode_to_normal();
 				op_set_fast_chg_allow(chg, false);
 			}
 		}

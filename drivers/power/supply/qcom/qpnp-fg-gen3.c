@@ -420,12 +420,12 @@ static struct fg_alg_flag pmi8998_v2_alg_flags[] = {
 	},
 };
 
-static int fg_gen3_debug_mask;
+static int fg_gen3_debug_mask = 0xFFFFFFFF;
 module_param_named(
 	debug_mask, fg_gen3_debug_mask, int, 0600
 );
 
-static bool fg_profile_dump;
+static bool fg_profile_dump = true;
 module_param_named(
 	profile_dump, fg_profile_dump, bool, 0600
 );

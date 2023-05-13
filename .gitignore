@@ -40,6 +40,8 @@ Module.symvers
 *.su
 *.c.[012]*.*
 
+compile_commands.json
+
 #
 # Top-level generic files
 #

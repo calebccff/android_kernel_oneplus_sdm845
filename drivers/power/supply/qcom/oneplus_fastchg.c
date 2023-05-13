@@ -1494,7 +1494,7 @@ static int dash_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	struct fastchg_device_info *di;
 	int ret;
 
-	pr_info("dash_probe\n");
+	pr_info("CA:: dash_probe\n");
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		pr_err("i2c_func error\n");
 		goto err_check_functionality_failed;

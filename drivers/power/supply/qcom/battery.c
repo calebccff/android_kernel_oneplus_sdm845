@@ -1597,6 +1597,8 @@ int qcom_batt_init(int smb_version)
 		return -EINVAL;
 	}
 
+	pr_info("CA:: %s", __func__);
+
 	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
 	if (!chip)
 		return -ENOMEM;

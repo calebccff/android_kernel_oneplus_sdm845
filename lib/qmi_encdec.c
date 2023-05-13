@@ -26,7 +26,7 @@
 #define TLV_TYPE_SIZE sizeof(uint8_t)
 #define OPTIONAL_TLV_TYPE_START 0x10
 
-#ifdef CONFIG_QMI_ENCDEC_DEBUG
+//#ifdef CONFIG_QMI_ENCDEC_DEBUG
 
 #define qmi_encdec_dump(prefix_str, buf, buf_len) do { \
 	const u8 *ptr = buf; \
@@ -66,16 +66,16 @@
 #define QMI_DECODE_LOG_TLV(tlv_type, tlv_len) \
 	pr_debug("QMI_DECODE_TLV type: %d, len: %d\n", tlv_type, tlv_len)
 
-#else
+// #else
 
-#define QMI_ENCODE_LOG_MSG(buf, buf_len) { }
-#define QMI_DECODE_LOG_MSG(buf, buf_len) { }
-#define QMI_ENCODE_LOG_ELEM(level, elem_len, elem_size, buf) { }
-#define QMI_DECODE_LOG_ELEM(level, elem_len, elem_size, buf) { }
-#define QMI_ENCODE_LOG_TLV(tlv_type, tlv_len) { }
-#define QMI_DECODE_LOG_TLV(tlv_type, tlv_len) { }
+// #define QMI_ENCODE_LOG_MSG(buf, buf_len) { }
+// #define QMI_DECODE_LOG_MSG(buf, buf_len) { }
+// #define QMI_ENCODE_LOG_ELEM(level, elem_len, elem_size, buf) { }
+// #define QMI_DECODE_LOG_ELEM(level, elem_len, elem_size, buf) { }
+// #define QMI_ENCODE_LOG_TLV(tlv_type, tlv_len) { }
+// #define QMI_DECODE_LOG_TLV(tlv_type, tlv_len) { }
 
-#endif
+// #endif
 
 static int _qmi_kernel_encode(struct elem_info *ei_array,
 			      void *out_buf, void *in_c_struct,

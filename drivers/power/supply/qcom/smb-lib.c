@@ -124,6 +124,8 @@ int smblib_read(struct smb_charger *chg, u16 addr, u8 *val)
 	rc = regmap_read(chg->regmap, addr, &temp);
 	if (rc >= 0)
 		*val = (u8)temp;
+	
+	dev_dbg(chg->dev, "%s(addr = 0x%4x, val=0x%2x)", __func__, addr, *val);
 
 	return rc;
 }
@@ -145,6 +147,8 @@ int smblib_masked_write(struct smb_charger *chg, u16 addr, u8 mask, u8 val)
 			goto unlock;
 	}
 
+	dev_dbg(chg->dev, "%s(addr = 0x%4x, mask=0x%2x, val=0x%2x)", __func__, addr, mask, val);
+
 	rc = regmap_update_bits(chg->regmap, addr, mask, val);
 
 unlock:
@@ -163,6 +167,8 @@ int smblib_write(struct smb_charger *chg, u16 addr, u8 val)
 		if (rc < 0)
 			goto unlock;
 	}
+
+	dev_dbg(chg->dev, "%s(addr = 0x%4x, val=0x%2x)", __func__, addr, val);
 
 	rc = regmap_write(chg->regmap, addr, val);
 
@@ -953,6 +959,7 @@ static int smblib_get_pulse_cnt(struct smb_charger *chg, int *count)
 #define USBIN_500MA	500000
 #define USBIN_900MA	900000
 
+// CA:: Type of SDP charger attached
 static int set_sdp_current(struct smb_charger *chg, int icl_ua)
 {
 	int rc;
@@ -2910,6 +2917,7 @@ static int smblib_get_prop_ufp_mode(struct smb_charger *chg)
 static int smblib_get_prop_dfp_mode(struct smb_charger *chg)
 {
 	switch (chg->typec_status[1] & DFP_TYPEC_MASK) {
+		// RA / RD are CC resistor values, pull down / pull up
 	case DFP_RA_RA_BIT:
 		return POWER_SUPPLY_TYPEC_SINK_AUDIO_ADAPTER;
 	case DFP_RD_RD_BIT:
@@ -4136,6 +4144,8 @@ irqreturn_t smblib_handle_icl_change(int irq, void *data)
 	struct smb_irq_data *irq_data = data;
 	struct smb_charger *chg = irq_data->parent_data;
 
+	smblib_err(chg, "IRQ: icl-change\n");
+
 	if (chg->mode == PARALLEL_MASTER) {
 		rc = smblib_read(chg, AICL_STATUS_REG, &stat);
 		if (rc < 0) {
@@ -5167,6 +5177,8 @@ irqreturn_t smblib_handle_usb_typec_change(int irq, void *data)
 {
 	struct smb_irq_data *irq_data = data;
 	struct smb_charger *chg = irq_data->parent_data;
+
+	smblib_err(chg, "IRQ: %s\n", irq_data->name);
 /* david.liu@bsp, 20171023 Battery & Charging porting */
 	chg->dash_on = get_prop_fast_chg_started(chg);
 	if (chg->dash_on)
@@ -5887,11 +5899,11 @@ static void set_usb_switch(struct smb_charger *chg, bool enable)
 			vote(chg->usb_icl_votable, AICL_RERUN_VOTER,
 					true, DCP_CURRENT_UA);
 		}
-		set_mcu_en_gpio_value(1);
-		usleep_range(10000, 10002);
-		usb_sw_gpio_set(1);
-		usleep_range(10000, 10002);
-		mcu_en_gpio_set(0);
+		// set_mcu_en_gpio_value(1);
+		// usleep_range(10000, 10002);
+		// usb_sw_gpio_set(1);
+		// usleep_range(10000, 10002);
+		// mcu_en_gpio_set(0);
 		if (chg->boot_usb_present)
 			retrger_time = TIME_3S;
 		else
@@ -5901,8 +5913,8 @@ static void set_usb_switch(struct smb_charger *chg, bool enable)
 					msecs_to_jiffies(retrger_time));
 	} else {
 		pr_err("switch off fastchg\n");
-		usb_sw_gpio_set(0);
-		mcu_en_gpio_set(1);
+		// usb_sw_gpio_set(0);
+		// mcu_en_gpio_set(1);
 	}
 }
 
@@ -6710,6 +6722,7 @@ static int op_check_battery_temp(struct smb_charger *chg)
 
 void op_charge_info_init(struct smb_charger *chg)
 {
+	pr_info("CA:: %s", __func__);
 	op_battery_temp_region_set(chg, BATT_TEMP_NORMAL);
 
 	chg->mBattTempBoundT0 = chg->BATT_TEMP_T0;
@@ -7432,7 +7445,7 @@ void op_disconnect_vbus(struct smb_charger *chg, bool enable)
 	pr_info("usb connecter hot,Vbus disconnected!");
 	chg->dash_on = get_prop_fast_chg_started(chg);
 	if (chg->dash_on) {
-		switch_mode_to_normal();
+//		switch_mode_to_normal();
 		op_set_fast_chg_allow(chg, false);
 	}
 	gpio_set_value(chg->vbus_ctrl, 1);
@@ -8579,7 +8592,7 @@ int smblib_init(struct smb_charger *chg)
 				msecs_to_jiffies(16000));
 	schedule_delayed_work(&chg->heartbeat_work,
 			msecs_to_jiffies(HEARTBEAT_INTERVAL_MS));
-	notify_dash_unplug_register(&notify_unplug_event);
+	//notify_dash_unplug_register(&notify_unplug_event);
 	wakeup_source_init(&chg->chg_wake_lock, "chg_wake_lock");
 	g_chg = chg;
 
@@ -8699,6 +8712,6 @@ int smblib_deinit(struct smb_charger *chg)
 	smblib_iio_deinit(chg);
 
 /* david.liu@bsp, 20171023 Battery & Charging porting */
-	notify_dash_unplug_unregister(&notify_unplug_event);
+//	notify_dash_unplug_unregister(&notify_unplug_event);
 	return 0;
 }

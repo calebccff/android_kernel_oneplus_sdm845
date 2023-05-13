@@ -568,6 +568,7 @@ struct op_adapter_operations op_adapter_ops = {
 static int __init dash_adapter_init(void)
 {
 	struct op_adapter_chip *chip = NULL;
+	printk("CA:: %s", __func__);
 
 	chip = kzalloc(sizeof(struct op_adapter_chip), GFP_KERNEL);
 	if (!chip)
@@ -586,7 +587,6 @@ static int __init dash_adapter_init(void)
 	op_adapter_init(chip);
 	the_chip = chip;
 
-	pr_info("%s success\n", __func__);
 	return 0;
 }
 

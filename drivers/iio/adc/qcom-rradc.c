@@ -518,6 +518,15 @@ static int rradc_post_process_chg_temp_hot(struct rradc_chip *chip,
 		return -EINVAL;
 	}
 
+	/*
+	uv = (int64_t) adc_code * 4;
+	uv = uv * 5000000;
+	uv = div64_s64(uv, (3 *
+					(1 << 10)));
+	uv = offset - uv;
+	uv = div64_s64((uv * 1000), slope);
+	uv = uv + 25000;*/
+
 	uv = (int64_t) adc_code * FG_ADC_RR_CHG_THRESHOLD_SCALE;
 	uv = uv * FG_ADC_RR_TEMP_FS_VOLTAGE_NUM;
 	uv = div64_s64(uv, (FG_ADC_RR_TEMP_FS_VOLTAGE_DEN *
